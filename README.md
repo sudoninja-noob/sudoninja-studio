@@ -4,7 +4,7 @@
 
 **A modern, dark-studio web interface for AI music generation, built on ACE-Step V1.5.**
 
-_Developed by [Sudo Ninja Studio](https://github.com/sudoninja-noob)_
+_More Details by [SudoNinja Studio](https://sudoninja-noob.github.io/sudoninja-studio/)_
 
 [![Frontend CI](https://github.com/sudoninja-noob/sudoninja-studio/actions/workflows/frontend.yml/badge.svg)](https://github.com/sudoninja-noob/sudoninja-studio/actions/workflows/frontend.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
