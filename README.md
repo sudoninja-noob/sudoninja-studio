@@ -6,6 +6,9 @@
 
 _Developed by [Sudo Ninja Studio](https://github.com/sudoninja-noob)_
 
+_ more details  by [More Details ](https://sudoninja-noob.github.io/sudoninja-studio/)_
+
+
 [![Frontend CI](https://github.com/sudoninja-noob/sudoninja-studio/actions/workflows/frontend.yml/badge.svg)](https://github.com/sudoninja-noob/sudoninja-studio/actions/workflows/frontend.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Frontend](https://img.shields.io/badge/frontend-React_18_·_TypeScript_·_Vite_·_Tailwind-8b5cf6)](frontend/)
