@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Sudo Ninja Studio — AI Music Generation</title>
+  <meta name="description" content="Sudo Ninja Studio — a modern, dark-studio web interface for AI music generation, built on ACE-Step V1.5. Text → music, remix, repaint, live progress, local library. English & Hindi." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b0b12'/%3E%3Ctext x='32' y='33' text-anchor='middle' dominant-baseline='central' font-family='Arial,sans-serif' font-weight='900' font-size='40' fill='url(%23g)'%3ES%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root{
+      --bg:#0b0b12; --panel:#12121c; --panel2:#171725;
+      --line:rgba(255,255,255,.07); --ink:#f4f4f8; --ink2:#c7c7d4; --ink3:#8a8a9c; --ink4:#63636f;
+      --brand:#8b5cf6; --brand2:#a78bfa; --magenta:#ec4899; --cyan:#22d3ee;
+      --grad:linear-gradient(120deg,#8b5cf6,#ec4899);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari","Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased; line-height:1.6;
+      background-image:
+        radial-gradient(60rem 40rem at 75% -10%, rgba(139,92,246,.18), transparent 60%),
+        radial-gradient(50rem 35rem at 0% 10%, rgba(236,72,153,.12), transparent 55%);
+      background-attachment:fixed;
+    }
+    a{color:inherit}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+    .btn{display:inline-flex;align-items:center;gap:.55rem;height:46px;padding:0 20px;border-radius:12px;
+      font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid var(--line);transition:.18s;white-space:nowrap}
+    .btn-primary{background:var(--grad);color:#fff;border:none;box-shadow:0 8px 30px rgba(139,92,246,.35)}
+    .btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .btn-ghost{background:rgba(255,255,255,.03);color:var(--ink2)}
+    .btn-ghost:hover{color:var(--ink);border-color:rgba(255,255,255,.18)}
+
+    /* top bar */
+    header.nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);
+      background:rgba(11,11,18,.72);border-bottom:1px solid var(--line)}
+    .nav-in{display:flex;align-items:center;gap:14px;height:60px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+    .logo .mark{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;
+      color:#fff;font-weight:900;box-shadow:0 6px 20px rgba(139,92,246,.4)}
+    .nav-links{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .nav-links a.tl{color:var(--ink3);text-decoration:none;font-size:.9rem;padding:8px 10px;border-radius:8px}
+    .nav-links a.tl:hover{color:var(--ink)}
+    @media(max-width:640px){.nav-links a.tl{display:none}}
+
+    /* hero */
+    .hero{padding:72px 0 40px;text-align:center}
+    .chip{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--ink2);
+      background:rgba(255,255,255,.04);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+    h1.title{font-size:clamp(2.6rem,9vw,5.5rem);line-height:.98;letter-spacing:-.03em;margin:22px 0 0;font-weight:900}
+    h1.title .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+      filter:drop-shadow(0 10px 40px rgba(139,92,246,.35))}
+    .sub{color:var(--ink2);font-size:clamp(1rem,2.5vw,1.2rem);max-width:640px;margin:20px auto 0}
+    .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+    .meta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px;color:var(--ink3);font-size:.85rem}
+    .meta-row span{background:rgba(255,255,255,.03);border:1px solid var(--line);padding:5px 12px;border-radius:999px}
+
+    /* waveform */
+    .wave{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:74px;margin:40px auto 0;max-width:680px}
+    .wave i{width:6px;border-radius:4px;background:var(--grad);opacity:.85;animation:bounce 1.4s ease-in-out infinite}
+    @keyframes bounce{0%,100%{height:14%}50%{height:100%}}
+    @media(prefers-reduced-motion:reduce){.wave i{animation:none;height:50%}}
+
+    section{padding:56px 0}
+    .eyebrow{color:var(--brand2);font-size:.78rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+    h2{font-size:clamp(1.6rem,4vw,2.2rem);letter-spacing:-.02em;margin:10px 0 0;font-weight:800}
+    .lead{color:var(--ink3);margin-top:10px;max-width:620px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:30px}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+      border-radius:var(--radius);padding:22px;transition:.18s}
+    .card:hover{border-color:rgba(139,92,246,.4);transform:translateY(-3px)}
+    .card .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:20px;
+      background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.25);margin-bottom:14px}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card p{margin:0;color:var(--ink3);font-size:.92rem}
+
+    /* code */
+    .code{background:#0a0a10;border:1px solid var(--line);border-radius:14px;padding:18px 20px;overflow:auto;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;color:#d6d6e4;margin-top:18px}
+    .code .c{color:var(--ink4)} .code .p{color:var(--magenta)} .code b{color:var(--brand2);font-weight:600}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+    @media(max-width:720px){.two{grid-template-columns:1fr}}
+    .note{background:rgba(236,72,153,.07);border:1px solid rgba(236,72,153,.22);border-radius:12px;padding:14px 16px;
+      color:var(--ink2);font-size:.9rem;margin-top:20px}
+
+    .stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .pill{font-size:.82rem;color:var(--ink2);background:rgba(255,255,255,.04);border:1px solid var(--line);padding:7px 14px;border-radius:999px}
+
+    footer{border-top:1px solid var(--line);padding:34px 0;color:var(--ink3);font-size:.88rem;text-align:center;margin-top:30px}
+    footer a{color:var(--brand2);text-decoration:none}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:0}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <div class="logo"><span class="mark">S</span> Sudo Ninja Studio</div>
+      <nav class="nav-links">
+        <a class="tl" href="#features">Features</a>
+        <a class="tl" href="#start">Quick start</a>
+        <a class="tl" href="#stack">Tech</a>
+        <a class="btn btn-ghost" href="https://github.com/sudoninja-noob/sudoninja-studio" target="_blank" rel="noopener">GitHub ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <div class="wrap hero">
+      <span class="chip"><span class="dot"></span> Built on ACE-Step V1.5 · English &amp; हिन्दी</span>
+      <h1 class="title"><span class="g">SUDO NINJA</span> STUDIO</h1>
+      <p class="sub">A modern, dark-studio web interface for <b>AI music generation</b>. Describe a song, get a full track — remix, repaint, and manage everything from your browser.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/sudoninja-noob/sudoninja-studio" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+        <a class="btn btn-ghost" href="#start">▶ Run it locally</a>
+      </div>
+      <div class="meta-row">
+        <span>🎵 Text → Music</span><span>🎧 Remix &amp; Repaint</span><span>🎛️ Full studio controls</span><span>🗂️ Local library</span>
+      </div>
+      <div class="wave" aria-hidden="true">
+        <script>
+          document.write(Array.from({length:48},(_,i)=>{
+            const d=(Math.sin(i*0.7)*0.5+0.5)*1.2;
+            return `<i style="animation-delay:${(-d).toFixed(2)}s"></i>`;
+          }).join(''));
+        </script>
+      </div>
+    </div>
+
+    <div class="divider wrap"></div>
+
+    <!-- FEATURES -->
+    <section id="features" class="wrap">
+      <div class="eyebrow">What it does</div>
+      <h2>Everything you need to make music with AI</h2>
+      <p class="lead">No command line, no Gradio quirks — just open a browser and create.</p>
+      <div class="grid">
+        <div class="card"><div class="ico">🎵</div><h3>Text → Music</h3><p>Describe a song in plain words and get a full, arranged track back.</p></div>
+        <div class="card"><div class="ico">🎤</div><h3>Lyrics-first</h3><p>Paste lyrics and get a matching arrangement, with section-tag helpers.</p></div>
+        <div class="card"><div class="ico">🎧</div><h3>Remix &amp; Repaint</h3><p>Restyle a track, or regenerate just a slice of existing audio.</p></div>
+        <div class="card"><div class="ico">🎛️</div><h3>Studio controls</h3><p>BPM, key, time signature, guidance, seed, batch, model picker &amp; presets.</p></div>
+        <div class="card"><div class="ico">🤖</div><h3>LLM-assisted</h3><p>The 5Hz LM enhances your captions and lyrics for higher-quality output.</p></div>
+        <div class="card"><div class="ico">📡</div><h3>Live progress</h3><p>Real-time job status while the model works — queue, stage, elapsed.</p></div>
+        <div class="card"><div class="ico">🗂️</div><h3>Local library</h3><p>Every take saved in your browser — playable, downloadable, reusable.</p></div>
+        <div class="card"><div class="ico">🌐</div><h3>English &amp; हिन्दी</h3><p>Full bilingual interface with a one-click toggle; auto-detects your language.</p></div>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section id="start" class="wrap">
+      <div class="eyebrow">Quick start</div>
+      <h2>Run it locally in one command</h2>
+      <p class="lead">The app has two parts — a React frontend and the ACE-Step Python backend (GPU/MPS). One script starts both.</p>
+      <div class="code">
+<span class="c"># from the repo folder — starts backend + frontend together</span>
+<b>./start.sh</b>
+
+<span class="c"># then open</span>
+http:<span class="p">//</span>localhost:5173
+      </div>
+      <div class="two">
+        <div>
+          <div class="code">
+<span class="c"># backend only (macOS · Apple Silicon)</span>
+ACESTEP_INIT_LLM=true <b>./start_api_server_macos.sh</b>
+          </div>
+        </div>
+        <div>
+          <div class="code">
+<span class="c"># frontend only</span>
+cd frontend
+npm install
+<b>npm run dev</b>
+          </div>
+        </div>
+      </div>
+      <div class="note">⚠️ The <b>backend needs a GPU/MPS machine</b> and can’t run on GitHub Pages — it serves the actual model. This page is the project’s landing/showcase; the full app runs locally or on a GPU host. See <b>RUNNING.md</b> in the repo for the complete guide.</div>
+    </section>
+
+    <!-- ARCHITECTURE / STACK -->
+    <section id="stack" class="wrap">
+      <div class="eyebrow">Under the hood</div>
+      <h2>Architecture</h2>
+      <p class="lead">A typed React SPA talks to the ACE-Step FastAPI backend over HTTP. Your history and library live in the browser — nothing is sent to a third party.</p>
+      <div class="code">
+┌────────────────────────┐    HTTP     ┌───────────────────────────┐
+│  Sudo Ninja Studio SPA │ ──────────▶ │  ACE-Step FastAPI backend │
+│  React · Vite · TS     │             │  PyTorch / MLX / vLLM     │
+│  localhost:5173        │ ◀────────── │  DiT + 5Hz LM · :8001     │
+└────────────────────────┘    JSON     └───────────────────────────┘
+      </div>
+      <div class="stack">
+        <span class="pill">React 18</span><span class="pill">TypeScript</span><span class="pill">Vite</span>
+        <span class="pill">Tailwind CSS</span><span class="pill">FastAPI</span><span class="pill">ACE-Step V1.5</span>
+        <span class="pill">PyTorch / MLX</span><span class="pill">Apache-2.0</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Made with 🎧 &nbsp;·&nbsp; <b>Sudo Ninja Studio</b> &nbsp;·&nbsp; Powered by
+      <a href="https://github.com/ace-step" target="_blank" rel="noopener">ACE-Step V1.5</a><br />
+      <a href="https://github.com/sudoninja-noob/sudoninja-studio" target="_blank" rel="noopener">github.com/sudoninja-noob/sudoninja-studio</a>
+    </div>
+  </footer>
+</body>
+</html>
